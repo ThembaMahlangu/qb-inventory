@@ -123,7 +123,7 @@ end)
 
 -- Functions
 
-local function checkWeapon(source, item)
+function checkWeapon(source, item)
     local currentWeapon = type(item) == 'table' and item.name or item
     local ped = GetPlayerPed(source)
     local weapon = GetSelectedPedWeapon(ped)
