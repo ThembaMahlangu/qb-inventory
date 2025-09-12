@@ -491,7 +491,7 @@ end
 
 RegisterNetEvent('qb-inventory:server:SetInventoryData', function(fromInventory, toInventory, fromSlot, toSlot, fromAmount, toAmount)
     if toInventory:find('shop%-') then return end
-    if not fromInventory or not toInventory or not fromSlot or not toSlot or not fromAmount or not toAmount then return end
+    if not fromInventory or not toInventory or not fromSlot or not toSlot or not fromAmount or not toAmount or fromAmount < 0 or toAmount < 0 then return end
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then return end
