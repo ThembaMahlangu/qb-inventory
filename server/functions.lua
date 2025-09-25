@@ -855,7 +855,7 @@ function RemoveItem(identifier, item, amount, slot, reason)
         inventory[itemKey] = inventoryItem
     end
 
-    if player then 
+    if player then
         player.Functions.SetPlayerData('items', inventory)
         
         local itemInfo = QBCore.Shared.Items[item:lower()]
