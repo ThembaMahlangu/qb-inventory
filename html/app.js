@@ -785,13 +785,14 @@ const InventoryContainer = Vue.createApp({
             
             if (existingIndex > -1) {
                 // Update existing notification amount
-                this.notifications[existingIndex].amount += notification.amount;
-                this.notifications[existingIndex].timestamp = Date.now();
+                const existingNotification = this.notifications[existingIndex];
+                existingNotification.amount += notification.amount;
+                existingNotification.timestamp = Date.now();
                 
                 // Reset the timeout for the existing notification
-                clearTimeout(this.notifications[existingIndex].timeoutId);
-                this.notifications[existingIndex].timeoutId = setTimeout(() => {
-                    this.removeNotification(this.notifications[existingIndex].id);
+                clearTimeout(existingNotification.timeoutId);
+                existingNotification.timeoutId = setTimeout(() => {
+                    this.removeNotification(existingNotification.id);
                 }, 3000);
             } else {
                 // Add new notification
@@ -812,8 +813,9 @@ const InventoryContainer = Vue.createApp({
             const index = this.notifications.findIndex(n => n.id === notificationId);
             if (index > -1) {
                 // Clear timeout if it exists
-                if (this.notifications[index].timeoutId) {
-                    clearTimeout(this.notifications[index].timeoutId);
+                const timeoutId = this.notifications[index].timeoutId;
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
                 }
                 this.notifications.splice(index, 1);
             }
