@@ -152,19 +152,33 @@
                     </div>
                 </div>
             </div>
-            <div class="notification-container" v-if="showNotification">
-                <div class="notification-slot">
-                    <div class="notification-title">
-                        <p>{{ notificationType }}</p>
-                    </div>
-                    <div class="item-slot-img">
-                        <img :src="notificationImage" alt="" />
-                    </div>
-                    <div class="item-slot-amount">
-                        <p>x{{ notificationAmount }}</p>
-                    </div>
-                    <div class="item-slot-label">
-                        <p>{{ notificationText }}</p>
+            <!-- Multiple Notifications Container -->
+            <div class="notifications-container" v-if="notifications.length > 0">
+                <div 
+                    v-for="(notification, index) in notifications" 
+                    :key="notification.id" 
+                    class="notification-item"
+                    :style="{ 
+                        'z-index': 1000 + index,
+                        'opacity': 1
+                    }"
+                    @click="removeNotification(notification.id)"
+                    title="Click to dismiss"
+                >
+                    <div class="notification-slot">
+                        <div class="notification-close">×</div>
+                        <div class="notification-title">
+                            <p>{{ notification.type }}</p>
+                        </div>
+                        <div class="item-slot-img">
+                            <img :src="notification.image" alt="" />
+                        </div>
+                        <div class="item-slot-amount">
+                            <p>x{{ notification.amount }}</p>
+                        </div>
+                        <div class="item-slot-label">
+                            <p>{{ notification.text }}</p>
+                        </div>
                     </div>
                 </div>
             </div>

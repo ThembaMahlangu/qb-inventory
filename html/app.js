@@ -89,6 +89,8 @@ const InventoryContainer = Vue.createApp({
                 notificationImage: "",
                 notificationType: "added",
                 notificationAmount: 1,
+                // Multiple notifications
+                notifications: [],
                 // Required items box
                 showRequiredItems: false,
                 requiredItems: [],
@@ -189,6 +191,8 @@ const InventoryContainer = Vue.createApp({
         async closeInventory() {
             this.clearDragData();
             let inventoryName = this.otherInventoryName;
+            // Clear all notifications when closing inventory
+            this.clearAllNotifications();
             Object.assign(this, this.getInitialState());
             try {
                 await axios.post("https://qb-inventory/CloseInventory", { name: inventoryName });
@@ -764,14 +768,64 @@ const InventoryContainer = Vue.createApp({
             }
         },
         showItemNotification(itemData) {
-            this.notificationText = itemData.item.label;
-            this.notificationImage = "images/" + itemData.item.image;
-            this.notificationType = itemData.type === "add" ? "Received" : itemData.type === "use" ? "Used" : "Removed";
-            this.notificationAmount = itemData.amount || 1;
-            this.showNotification = true;
-            setTimeout(() => {
-                this.showNotification = false;
-            }, 3000);
+            const notification = {
+                id: Date.now() + Math.random(), // Unique ID for each notification
+                text: itemData.item.label,
+                image: "images/" + itemData.item.image,
+                type: itemData.type === "add" ? "Received" : itemData.type === "use" ? "Used" : "Removed",
+                amount: itemData.amount || 1,
+                timestamp: Date.now()
+            };
+            
+            // Check if we already have a notification for the same item and type
+            const existingIndex = this.notifications.findIndex(n => 
+                n.text === notification.text && 
+                n.type === notification.type
+            );
+            
+            if (existingIndex > -1) {
+                // Update existing notification amount
+                this.notifications[existingIndex].amount += notification.amount;
+                this.notifications[existingIndex].timestamp = Date.now();
+                
+                // Reset the timeout for the existing notification
+                clearTimeout(this.notifications[existingIndex].timeoutId);
+                this.notifications[existingIndex].timeoutId = setTimeout(() => {
+                    this.removeNotification(this.notifications[existingIndex].id);
+                }, 3000);
+            } else {
+                // Add new notification
+                this.notifications.push(notification);
+                
+                // Limit to maximum 5 notifications
+                if (this.notifications.length > 5) {
+                    this.removeNotification(this.notifications[0].id);
+                }
+                
+                // Auto-remove after 3 seconds
+                notification.timeoutId = setTimeout(() => {
+                    this.removeNotification(notification.id);
+                }, 3000);
+            }
+        },
+        removeNotification(notificationId) {
+            const index = this.notifications.findIndex(n => n.id === notificationId);
+            if (index > -1) {
+                // Clear timeout if it exists
+                if (this.notifications[index].timeoutId) {
+                    clearTimeout(this.notifications[index].timeoutId);
+                }
+                this.notifications.splice(index, 1);
+            }
+        },
+        clearAllNotifications() {
+            // Clear all timeouts
+            this.notifications.forEach(notification => {
+                if (notification.timeoutId) {
+                    clearTimeout(notification.timeoutId);
+                }
+            });
+            this.notifications = [];
         },
         showRequiredItem(data) {
             if (data.toggle) {
